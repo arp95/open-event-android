@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -17,7 +16,6 @@ import android.support.customtabs.CustomTabsClient;
 import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -207,9 +205,12 @@ public class SpeakerDetailsActivity extends BaseActivity implements AppBarLayout
             }
         };
 
-        Picasso.with(SpeakerDetailsActivity.this)
-                .load(Uri.parse(selectedSpeaker.getPhoto()))
-                .into(imageTarget);
+        if(selectedSpeaker!=null) {
+
+            Picasso.with(SpeakerDetailsActivity.this)
+                    .load(Uri.parse(selectedSpeaker.getPhoto()))
+                    .into(imageTarget);
+        }
     }
 
     private void handleVisibility() {
