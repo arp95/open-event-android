@@ -8,7 +8,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,9 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 
 /**
  * User: MananWason
@@ -67,18 +64,7 @@ public class LocationsFragment extends BaseFragment implements SearchView.OnQuer
         compositeDisposable = new CompositeDisposable();
 
         final DbSingleton dbSingleton = DbSingleton.getInstance();
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refresh();
-            }
-        });
-
-
-        //setting the grid layout to cut-off white space in tablet view
-        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-        float width = displayMetrics.widthPixels / displayMetrics.density;
-        int spanCount = (int) (width/200.00);
+        swipeRefreshLayout.setOnRefreshListener(this::refresh);
 
         locationsRecyclerView.setHasFixedSize(true);
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
@@ -99,15 +85,12 @@ public class LocationsFragment extends BaseFragment implements SearchView.OnQuer
         }
 
         compositeDisposable.add(dbSingleton.getMicrolocationListObservable()
-                .subscribe(new Consumer<ArrayList<Microlocation>>() {
-                    @Override
-                    public void accept(@NonNull ArrayList<Microlocation> microlocations) throws Exception {
-                        mLocations.clear();
-                        mLocations.addAll(microlocations);
+                .subscribe(microlocations -> {
+                    mLocations.clear();
+                    mLocations.addAll(microlocations);
 
-                        locationsListAdapter.notifyDataSetChanged();
-                        handleVisibility();
-                    }
+                    locationsListAdapter.notifyDataSetChanged();
+                    handleVisibility();
                 }));
 
         handleVisibility();
@@ -143,10 +126,8 @@ public class LocationsFragment extends BaseFragment implements SearchView.OnQuer
 
     @Override
     public void onSaveInstanceState(Bundle bundle) {
-        if (isAdded()) {
-            if (searchView != null) {
-                bundle.putString(SEARCH, searchText);
-            }
+        if (isAdded() && searchView != null) {
+            bundle.putString(SEARCH, searchText);
         }
         super.onSaveInstanceState(bundle);
     }
@@ -206,7 +187,7 @@ public class LocationsFragment extends BaseFragment implements SearchView.OnQuer
     }
 
     @Subscribe
-    public void LocationsDownloadDone(MicrolocationDownloadEvent event) {
+    public void onLocationsDownloadDone(MicrolocationDownloadEvent event) {
         if(swipeRefreshLayout == null)
             return;
 
@@ -215,12 +196,8 @@ public class LocationsFragment extends BaseFragment implements SearchView.OnQuer
             locationsListAdapter.refresh();
 
         } else {
-            Snackbar.make(swipeRefreshLayout, getActivity().getString(R.string.refresh_failed), Snackbar.LENGTH_LONG).setAction(R.string.retry_download, new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    refresh();
-                }
-            }).show();
+            Snackbar.make(swipeRefreshLayout, getActivity().getString(R.string.refresh_failed), Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry_download, view -> refresh()).show();
         }
     }
 

@@ -28,9 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 /**
@@ -48,8 +46,6 @@ public class SponsorsFragment extends BaseFragment {
     @BindView(R.id.list_sponsors)
     RecyclerView sponsorsRecyclerView;
 
-    private LinearLayoutManager linearLayoutManager;
-
     private CompositeDisposable compositeDisposable;
 
     @Nullable
@@ -64,28 +60,20 @@ public class SponsorsFragment extends BaseFragment {
 
         final DbSingleton dbSingleton = DbSingleton.getInstance();
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refresh();
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(this::refresh);
         sponsorsListAdapter = new SponsorsListAdapter(getContext(), mSponsors,
                 getActivity(), true);
         sponsorsRecyclerView.setAdapter(sponsorsListAdapter);
-        linearLayoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         sponsorsRecyclerView.setLayoutManager(linearLayoutManager);
 
         compositeDisposable.add(dbSingleton.getSponsorListObservable()
-                .subscribe(new Consumer<ArrayList<Sponsor>>() {
-                    @Override
-                    public void accept(@NonNull ArrayList<Sponsor> sponsors) throws Exception {
-                        mSponsors.clear();
-                        mSponsors.addAll(sponsors);
+                .subscribe(sponsors -> {
+                    mSponsors.clear();
+                    mSponsors.addAll(sponsors);
 
-                        sponsorsListAdapter.notifyDataSetChanged();
-                        handleVisibility();
-                    }
+                    sponsorsListAdapter.notifyDataSetChanged();
+                    handleVisibility();
                 }));
 
         return view;
@@ -127,12 +115,8 @@ public class SponsorsFragment extends BaseFragment {
             sponsorsListAdapter.refresh();
             Timber.d("Refresh done");
         } else {
-            Snackbar.make(swipeRefreshLayout, getActivity().getString(R.string.refresh_failed), Snackbar.LENGTH_LONG).setAction(R.string.retry_download, new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    refresh();
-                }
-            }).show();
+            Snackbar.make(swipeRefreshLayout, getActivity().getString(R.string.refresh_failed), Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry_download, view -> refresh()).show();
             Timber.d("Refresh not done");
         }
     }
@@ -167,12 +151,8 @@ public class SponsorsFragment extends BaseFragment {
 
             @Override
             public void networkUnavailable() {
-                Snackbar.make(swipeRefreshLayout, getActivity().getString(R.string.refresh_failed), Snackbar.LENGTH_LONG).setAction(R.string.retry_download, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        refresh();
-                    }
-                }).show();
+                Snackbar.make(swipeRefreshLayout, getActivity().getString(R.string.refresh_failed), Snackbar.LENGTH_LONG)
+                        .setAction(R.string.retry_download, view -> refresh()).show();
                 OpenEventApp.getEventBus().post(new SponsorDownloadEvent(true));
             }
         });

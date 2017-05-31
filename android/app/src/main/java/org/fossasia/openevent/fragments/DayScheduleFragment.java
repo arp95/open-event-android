@@ -1,8 +1,6 @@
 package org.fossasia.openevent.fragments;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.MenuItemCompat;
@@ -40,9 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by Manan Wason on 17/06/16.
@@ -64,8 +60,6 @@ public class DayScheduleFragment extends BaseFragment implements SearchView.OnQu
     private DayScheduleAdapter dayScheduleAdapter;
 
     private String date;
-    private int sortType;
-    private SharedPreferences sharedPreferences;
     private CompositeDisposable compositeDisposable;
     private String[] mTracksNames;
     private boolean[] mSelectedTracks;
@@ -79,19 +73,14 @@ public class DayScheduleFragment extends BaseFragment implements SearchView.OnQu
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        sortType = sharedPreferences.getInt(ConstantStrings.PREF_SORT, 2);
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
         compositeDisposable = new CompositeDisposable();
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refresh();
-                if(mSelectedTracks != null && mTracksNames != null) {
-                    filter(mTracksNames,mSelectedTracks);
-                }
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            refresh();
+            if(mSelectedTracks != null && mTracksNames != null) {
+                filter(mTracksNames,mSelectedTracks);
             }
         });
 
@@ -113,15 +102,12 @@ public class DayScheduleFragment extends BaseFragment implements SearchView.OnQu
         }
 
         compositeDisposable.add(DbSingleton.getInstance().getSessionsByDateObservable(date, SortOrder.sortOrderSchedule(getActivity()))
-                .subscribe(new Consumer<ArrayList<Session>>() {
-                    @Override
-                    public void accept(@NonNull ArrayList<Session> sortedSessions) throws Exception {
-                        mSessions.clear();
-                        mSessions.addAll(sortedSessions);
-                        mSessionsFiltered.clear();
-                        mSessionsFiltered.addAll(sortedSessions);
-                        handleVisibility();
-                    }
+                .subscribe(sortedSessions -> {
+                    mSessions.clear();
+                    mSessions.addAll(sortedSessions);
+                    mSessionsFiltered.clear();
+                    mSessionsFiltered.addAll(sortedSessions);
+                    handleVisibility();
                 }));
 
         handleVisibility();
@@ -184,12 +170,6 @@ public class DayScheduleFragment extends BaseFragment implements SearchView.OnQu
     public void onStart() {
         OpenEventApp.getEventBus().register(this);
         super.onStart();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        sortType = sharedPreferences.getInt(ConstantStrings.PREF_SORT, 2);
     }
 
     @Override
@@ -276,30 +256,23 @@ public class DayScheduleFragment extends BaseFragment implements SearchView.OnQu
                 }
             }
         } else {
-            Snackbar.make(swipeRefreshLayout, getActivity().getString(R.string.refresh_failed), Snackbar.LENGTH_LONG).setAction(R.string.retry_download, new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    refresh();
-                }
-            }).show();
+            Snackbar.make(swipeRefreshLayout, getActivity().getString(R.string.refresh_failed), Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry_download, view -> refresh()).show();
         }
     }
 
     public void refreshSchedule() {
         compositeDisposable.add(DbSingleton.getInstance().getSessionsByDateObservable(date, SortOrder.sortOrderSchedule(getActivity()))
-                .subscribe(new Consumer<ArrayList<Session>>() {
-                    @Override
-                    public void accept(@NonNull ArrayList<Session> sortedSessions) throws Exception {
-                        mSessions.clear();
-                        mSessions.addAll(sortedSessions);
-                        mSessionsFiltered.clear();
-                        mSessionsFiltered.addAll(sortedSessions);
-                        if(mSelectedTracks != null && mTracksNames != null) {
-                            filter(mTracksNames,mSelectedTracks);
-                        }
-                        dayScheduleAdapter.notifyDataSetChanged();
-                        handleVisibility();
+                .subscribe(sortedSessions -> {
+                    mSessions.clear();
+                    mSessions.addAll(sortedSessions);
+                    mSessionsFiltered.clear();
+                    mSessionsFiltered.addAll(sortedSessions);
+                    if(mSelectedTracks != null && mTracksNames != null) {
+                        filter(mTracksNames,mSelectedTracks);
                     }
+                    dayScheduleAdapter.notifyDataSetChanged();
+                    handleVisibility();
                 }));
     }
 

@@ -27,9 +27,7 @@ import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.functions.Consumer;
 import timber.log.Timber;
 
 /**
@@ -98,30 +96,24 @@ public class LocationActivity extends BaseActivity implements SearchView.OnQuery
         sessionRecyclerView.setItemAnimator(new DefaultItemAnimator());
         if (searchText != null) {
             disposable.add(dbSingleton.getSessionsByLocationNameObservable(location)
-                    .subscribe(new Consumer<ArrayList<Session>>() {
-                        @Override
-                        public void accept(@NonNull ArrayList<Session> sessions) throws Exception {
-                            mSessions.clear();
-                            mSessions.addAll(sessions);
-                            final List<Session> filteredModelList = filter(mSessions,
-                                    searchText.toLowerCase(Locale.getDefault()));
-                            Timber.tag("xyz").d("%d %d", mSessions.size(), filteredModelList.size());
-                            sessionsListAdapter.notifyDataSetChanged();
-                            sessionsListAdapter.animateTo(filteredModelList);
-                            sessionRecyclerView.scrollToPosition(0);
-                        }
+                    .subscribe(sessions -> {
+                        mSessions.clear();
+                        mSessions.addAll(sessions);
+                        final List<Session> filteredModelList = filter(mSessions,
+                                searchText.toLowerCase(Locale.getDefault()));
+                        Timber.tag("xyz").d("%d %d", mSessions.size(), filteredModelList.size());
+                        sessionsListAdapter.notifyDataSetChanged();
+                        sessionsListAdapter.animateTo(filteredModelList);
+                        sessionRecyclerView.scrollToPosition(0);
                     }));
         } else {
             disposable.add(dbSingleton.getSessionsByLocationNameObservable(location)
-                    .subscribe(new Consumer<ArrayList<Session>>() {
-                        @Override
-                        public void accept(@NonNull ArrayList<Session> sessions) throws Exception {
-                            mSessions.clear();
-                            mSessions.addAll(sessions);
-                            sessionsListAdapter.notifyDataSetChanged();
+                    .subscribe(sessions -> {
+                        mSessions.clear();
+                        mSessions.addAll(sessions);
+                        sessionsListAdapter.notifyDataSetChanged();
 
-                            handleVisibility();
-                        }
+                        handleVisibility();
                     }));
         }
 
@@ -201,34 +193,31 @@ public class LocationActivity extends BaseActivity implements SearchView.OnQuery
         DbSingleton dbSingleton = DbSingleton.getInstance();
 
         disposable.add(dbSingleton.getSessionsByLocationNameObservable(location)
-                .subscribe(new Consumer<ArrayList<Session>>() {
-                    @Override
-                    public void accept(@NonNull ArrayList<Session> sessions) throws Exception {
-                        mSessions.clear();
-                        mSessions.addAll(sessions);
+                .subscribe(sessions -> {
+                    mSessions.clear();
+                    mSessions.addAll(sessions);
 
-                        final List<Session> filteredModelList = filter(mSessions,
-                                query.toLowerCase(Locale.getDefault()));
-                        Timber.tag("xyz").d("%d %d", mSessions.size(), filteredModelList.size());
+                    final List<Session> filteredModelList = filter(mSessions,
+                            query.toLowerCase(Locale.getDefault()));
+                    Timber.tag("xyz").d("%d %d", mSessions.size(), filteredModelList.size());
 
-                        sessionsListAdapter.notifyDataSetChanged();
-                        sessionsListAdapter.animateTo(filteredModelList);
-                        sessionRecyclerView.scrollToPosition(0);
+                    sessionsListAdapter.notifyDataSetChanged();
+                    sessionsListAdapter.animateTo(filteredModelList);
+                    sessionRecyclerView.scrollToPosition(0);
 
-                        searchText = query;
-                    }
+                    searchText = query;
                 }));
 
         return false;
     }
 
     private List<Session> filter(List<Session> sessions, String query) {
-        query = query.toLowerCase(Locale.getDefault());
+        String queryLowerCase = query.toLowerCase(Locale.getDefault());
 
         final List<Session> filteredTracksList = new ArrayList<>();
         for (Session session : sessions) {
             final String text = session.getTitle().toLowerCase(Locale.getDefault());
-            if (text.contains(query)) {
+            if (text.contains(queryLowerCase)) {
                 filteredTracksList.add(session);
             }
         }
