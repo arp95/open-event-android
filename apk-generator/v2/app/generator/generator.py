@@ -43,7 +43,7 @@ class Generator:
         self.app_package_name = 'org.fossasia.openevent.' + self.app_name.replace(" ", "")
         self.app_temp_assets = os.path.abspath(self.working_dir + '/' + self.identifier + '/assets-src/')
         self.app_temp_images_speakers = os.path.abspath(self.working_dir + '/' + self.identifier + '/drawable-res-src/')
-		self.api_link = ''
+	self.api_link = ''
         self.apk_path = ''
         self.via_api = via_api
 
@@ -55,8 +55,8 @@ class Generator:
         """
         return os.path.abspath(self.app_working_dir + '/' + relative_path)
 	
-	def get_temp_images_speakers(self, relative_path):
-		"""
+    def get_temp_images_speakers(self, relative_path):
+	"""
         Get the path to a resource relative to the app source
         :param relative_path:
         :return:
@@ -205,10 +205,10 @@ class Generator:
         self.save_file_in_temp_assets('speakers')
         self.save_file_in_temp_assets('sponsors')
         self.save_file_in_temp_assets('tracks')
-		self.save_file_in_temp_images_speakers('images/speakers')
+	self.save_file_in_temp_images_speakers('images/speakers')
         logger.info('Download complete')
 
-	def save_file_in_temp_images_speakers(self, end_point='event'):
+    def save_file_in_temp_images_speakers(self, end_point='event'):
         """
         Save response from specified end_point in drawable directory
         :param end_point:
