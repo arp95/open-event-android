@@ -106,17 +106,24 @@ public class SpeakersListAdapter extends BaseRVAdapter<Speaker, SpeakersListAdap
     public void onBindViewHolder(RecyclerViewHolder holder, final int position) {
         final Speaker current = getItem(position);
 
+        String organisation = current.getOrganisation();
+        String country = current.getCountry();
+
         //adding distinct org and country (note size of array will never be greater than 2)
-        if(distinctOrgs.isEmpty()){
-            distinctOrgs.add(current.getOrganisation());
-        } else if (distinctOrgs.size()==1 && (!current.getOrganisation().equals(distinctOrgs.get(0)))){
-            distinctOrgs.add(current.getOrganisation());
+        if(!TextUtils.isEmpty(organisation)) {
+            if (distinctOrgs.isEmpty()) {
+                distinctOrgs.add(organisation);
+            } else if (distinctOrgs.size() == 1 && (!organisation.equals(distinctOrgs.get(0)))) {
+                distinctOrgs.add(organisation);
+            }
         }
 
-        if(distinctCountry.isEmpty()){
-            distinctCountry.add(current.getCountry());
-        } else if (distinctCountry.size()==1 && (!current.getCountry().equals(distinctCountry.get(0)))){
-            distinctCountry.add(current.getCountry());
+        if(!TextUtils.isEmpty(country)) {
+            if (distinctCountry.isEmpty()) {
+                distinctCountry.add(country);
+            } else if (distinctCountry.size() == 1 && (!country.equals(distinctCountry.get(0)))) {
+                distinctCountry.add(country);
+            }
         }
 
 
@@ -140,11 +147,10 @@ public class SpeakersListAdapter extends BaseRVAdapter<Speaker, SpeakersListAdap
         String positionString = current.getPosition();
         positionString = TextUtils.isEmpty(positionString) ? "" : positionString;
 
-        String country = current.getCountry();
         country = TextUtils.isEmpty(country) ? "" : country;
 
         holder.speakerName.setText(name);
-        holder.speakerDesignation.setText(String.format(positionString, current.getOrganisation()));
+        holder.speakerDesignation.setText(String.format(positionString, organisation));
         holder.speakerCountry.setText(country);
 
         holder.itemView.setOnClickListener(v -> {

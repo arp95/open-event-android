@@ -23,6 +23,7 @@ import org.fossasia.openevent.fragments.DayScheduleFragment;
 import org.fossasia.openevent.utils.ConstantStrings;
 import org.fossasia.openevent.utils.ISO8601Date;
 import org.fossasia.openevent.utils.SortOrder;
+import org.fossasia.openevent.utils.Views;
 import org.fossasia.openevent.views.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 
 import java.util.ArrayList;
@@ -85,44 +86,55 @@ public class DayScheduleAdapter extends BaseRVAdapter<Session, DayScheduleAdapte
         holder.startTime.setText(startTime);
         holder.endTime.setText(endTime);
         holder.slotTitle.setText(currentSession.getTitle());
-        if (currentSession.getShortAbstract().isEmpty()) {
-            holder.slotDescription.setVisibility(View.GONE);
-        } else {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                holder.slotDescription.setText(Html.fromHtml(currentSession.getShortAbstract(), Html.FROM_HTML_MODE_LEGACY));
-            } else {
-                holder.slotDescription.setText(Html.fromHtml(currentSession.getShortAbstract()));
-            }
-        }
+
+        Views.setHtml(holder.slotDescription, currentSession.getShortAbstract(), true);
 
         final Track sessionTrack = currentSession.getTrack();
-        int storedColor = Color.parseColor(sessionTrack.getColor());
-        holder.slotTrack.getBackground().setColorFilter(storedColor, PorterDuff.Mode.SRC_ATOP);
-        holder.slotTrack.setText(sessionTrack.getName());
 
-        holder.slotTrack.setOnClickListener(v -> {
+        if (!RealmDataRepository.isNull(sessionTrack)) {
+            int storedColor = Color.parseColor(sessionTrack.getColor());
+            holder.slotTrack.setVisibility(View.VISIBLE);
+            holder.slotTrack.getBackground().setColorFilter(storedColor, PorterDuff.Mode.SRC_ATOP);
+            holder.slotTrack.setText(sessionTrack.getName());
+
+            holder.slotTrack.setOnClickListener(v -> {
                 Intent intent = new Intent(context, TrackSessionsActivity.class);
                 intent.putExtra(ConstantStrings.TRACK, sessionTrack.getName());
                 intent.putExtra(ConstantStrings.TRACK_ID, sessionTrack.getId());
                 context.startActivity(intent);
-        });
+            });
+
+            holder.itemView.setOnClickListener(v -> {
+                final String sessionName = currentSession.getTitle();
+
+                realmRepo.getTrack(currentSession.getTrack().getId())
+                        .addChangeListener((RealmChangeListener<Track>) track -> {
+                            String trackName = track.getName();
+                            Intent intent = new Intent(context, SessionDetailActivity.class);
+                            intent.putExtra(ConstantStrings.SESSION, sessionName);
+                            intent.putExtra(ConstantStrings.TRACK, trackName);
+                            intent.putExtra(ConstantStrings.ID, currentSession.getId());
+                            context.startActivity(intent);
+                        });
+            });
+        } else {
+            holder.slotTrack.setOnClickListener(null);
+            holder.slotTrack.setVisibility(View.GONE);
+
+            holder.itemView.setOnClickListener(v -> {
+                final String sessionName = currentSession.getTitle();
+
+                Intent intent = new Intent(context, SessionDetailActivity.class);
+                intent.putExtra(ConstantStrings.SESSION, sessionName);
+                intent.putExtra(ConstantStrings.ID, currentSession.getId());
+                context.startActivity(intent);
+            });
+
+            Timber.d("This session has no track somehow : " + currentSession + " " + sessionTrack);
+        }
 
         if(currentSession.getMicrolocation() != null)
             holder.slotLocation.setText(currentSession.getMicrolocation().getName());
-
-        holder.itemView.setOnClickListener(v -> {
-            final String sessionName = currentSession.getTitle();
-
-            realmRepo.getTrack(currentSession.getTrack().getId())
-                    .addChangeListener((RealmChangeListener<Track>) track -> {
-                        String trackName = track.getName();
-                        Intent intent = new Intent(context, SessionDetailActivity.class);
-                        intent.putExtra(ConstantStrings.SESSION, sessionName);
-                        intent.putExtra(ConstantStrings.TRACK, trackName);
-                        intent.putExtra(ConstantStrings.ID, currentSession.getId());
-                        context.startActivity(intent);
-                    });
-        });
     }
 
     @Override
