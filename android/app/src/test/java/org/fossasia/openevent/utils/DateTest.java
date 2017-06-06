@@ -1,6 +1,5 @@
-package org.fossasia.openevent;
+package org.fossasia.openevent.utils;
 
-import org.fossasia.openevent.utils.ISO8601Date;
 import org.junit.Assert;
 import org.junit.Test;
 
