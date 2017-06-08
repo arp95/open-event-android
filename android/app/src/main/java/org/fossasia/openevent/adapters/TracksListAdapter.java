@@ -19,6 +19,7 @@ import org.fossasia.openevent.activities.TrackSessionsActivity;
 import org.fossasia.openevent.data.Track;
 import org.fossasia.openevent.dbutils.RealmDataRepository;
 import org.fossasia.openevent.utils.ConstantStrings;
+import org.fossasia.openevent.utils.Utils;
 import org.fossasia.openevent.views.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 
 import java.util.List;
@@ -86,14 +87,11 @@ public class TracksListAdapter extends BaseRVAdapter<Track, TracksListAdapter.Re
     @Override
     public void onBindViewHolder(RecyclerViewHolder holder, int position) {
         final Track currentTrack = getItem(position);
-
-        holder.trackTitle.setText(currentTrack.getName());
-
         int trackColor = Color.parseColor(currentTrack.getColor());
+        String trackName = Utils.checkStringEmpty(currentTrack.getName());
 
-        String trackName = currentTrack.getName();
-
-        if(!TextUtils.isEmpty(trackName)) {
+        holder.trackTitle.setText(trackName);
+        if(!Utils.isEmpty(trackName)) {
             TextDrawable drawable = drawableBuilder.build(String.valueOf(trackName.charAt(0)), trackColor);
             holder.trackImageIcon.setImageDrawable(drawable);
             holder.trackImageIcon.setBackgroundColor(Color.TRANSPARENT);
@@ -115,10 +113,9 @@ public class TracksListAdapter extends BaseRVAdapter<Track, TracksListAdapter.Re
 
     @Override
     public long getHeaderId(int position) {
-        String trackName = getItem(position).getName();
-
-        if(!TextUtils.isEmpty(trackName))
-            return getItem(position).getName().charAt(0);
+        String trackName = Utils.checkStringEmpty(getItem(position).getName());
+        if(!Utils.isEmpty(trackName))
+            return trackName.charAt(0);
         else
             return 0;
     }

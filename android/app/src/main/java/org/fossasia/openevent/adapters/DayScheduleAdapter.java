@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +22,7 @@ import org.fossasia.openevent.fragments.DayScheduleFragment;
 import org.fossasia.openevent.utils.ConstantStrings;
 import org.fossasia.openevent.utils.ISO8601Date;
 import org.fossasia.openevent.utils.SortOrder;
+import org.fossasia.openevent.utils.Utils;
 import org.fossasia.openevent.utils.Views;
 import org.fossasia.openevent.views.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 
@@ -82,12 +82,13 @@ public class DayScheduleAdapter extends BaseRVAdapter<Session, DayScheduleAdapte
         final Session currentSession = getItem(position);
         String startTime = ISO8601Date.get12HourTimeFromString(currentSession.getStartTime());
         String endTime = ISO8601Date.get12HourTimeFromString(currentSession.getEndTime());
+        String title = Utils.checkStringEmpty(currentSession.getTitle());
+        String shortAbstract = Utils.checkStringEmpty(currentSession.getShortAbstract());
 
         holder.startTime.setText(startTime);
         holder.endTime.setText(endTime);
-        holder.slotTitle.setText(currentSession.getTitle());
-
-        Views.setHtml(holder.slotDescription, currentSession.getShortAbstract(), true);
+        holder.slotTitle.setText(title);
+        Views.setHtml(holder.slotDescription, shortAbstract, true);
 
         final Track sessionTrack = currentSession.getTrack();
 
@@ -133,8 +134,10 @@ public class DayScheduleAdapter extends BaseRVAdapter<Session, DayScheduleAdapte
             Timber.d("This session has no track somehow : " + currentSession + " " + sessionTrack);
         }
 
-        if(currentSession.getMicrolocation() != null)
-            holder.slotLocation.setText(currentSession.getMicrolocation().getName());
+        if(currentSession.getMicrolocation() != null) {
+            String locationName = Utils.checkStringEmpty(currentSession.getMicrolocation().getName());
+            holder.slotLocation.setText(locationName);
+        }
     }
 
     @Override
@@ -207,11 +210,13 @@ public class DayScheduleAdapter extends BaseRVAdapter<Session, DayScheduleAdapte
     @Override
     public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder, int position) {
         TextView textView = (TextView) holder.itemView.findViewById(R.id.recyclerview_view_header);
-        
-        if (SortOrder.sortOrderSchedule(context).equals(Session.TITLE)) {
-            textView.setText(String.valueOf(getItem(position).getTitle().charAt(0)));
+        String sortTitle = Utils.checkStringEmpty(getItem(position).getTitle());
+        String sortName = Utils.checkStringEmpty(getItem(position).getTrack().getName());
+
+        if (SortOrder.sortOrderSchedule(context).equals(Session.TITLE) && (!Utils.isEmpty(sortTitle))) {
+            textView.setText(String.valueOf(sortTitle.charAt(0)));
         } else if (SortOrder.sortOrderSchedule(context).equals(Session.TRACK)){
-            textView.setText(String.valueOf(getItem(position).getTrack().getName()));
+            textView.setText(String.valueOf(sortName));
         }
         else if (SortOrder.sortOrderSchedule(context).equals(Session.START_TIME)) {
             textView.setText(ISO8601Date.get12HourTimeFromString(getItem(position).getStartTime()));

@@ -106,8 +106,11 @@ public class SpeakersListAdapter extends BaseRVAdapter<Speaker, SpeakersListAdap
     public void onBindViewHolder(RecyclerViewHolder holder, final int position) {
         final Speaker current = getItem(position);
 
-        String organisation = current.getOrganisation();
-        String country = current.getCountry();
+        String organisation = Utils.checkStringEmpty(current.getOrganisation());
+        String country = Utils.checkStringEmpty(current.getCountry());
+        String name = Utils.checkStringEmpty(current.getName());
+        String positionString = Utils.checkStringEmpty(current.getPosition());
+        String thumbnail = Utils.parseImageUri(current.getThumbnail());
 
         //adding distinct org and country (note size of array will never be greater than 2)
         if(!TextUtils.isEmpty(organisation)) {
@@ -118,7 +121,7 @@ public class SpeakersListAdapter extends BaseRVAdapter<Speaker, SpeakersListAdap
             }
         }
 
-        if(!TextUtils.isEmpty(country)) {
+        if(!Utils.isEmpty(country)) {
             if (distinctCountry.isEmpty()) {
                 distinctCountry.add(country);
             } else if (distinctCountry.size() == 1 && (!country.equals(distinctCountry.get(0)))) {
@@ -126,10 +129,9 @@ public class SpeakersListAdapter extends BaseRVAdapter<Speaker, SpeakersListAdap
             }
         }
 
-
-        String thumbnail = Utils.parseImageUri(current.getThumbnail());
-        if (thumbnail == null)
+        if (thumbnail == null) {
             thumbnail = Utils.parseImageUri(current.getPhoto());
+        }
         Drawable placeholder = VectorDrawableCompat.create(context.getResources(), R.drawable.ic_account_circle_grey_24dp, null);
 
         if(thumbnail != null) {
@@ -140,14 +142,6 @@ public class SpeakersListAdapter extends BaseRVAdapter<Speaker, SpeakersListAdap
         } else {
             holder.speakerImage.setImageDrawable(placeholder);
         }
-
-        String name = current.getName();
-        name = TextUtils.isEmpty(name) ? "" : name;
-
-        String positionString = current.getPosition();
-        positionString = TextUtils.isEmpty(positionString) ? "" : positionString;
-
-        country = TextUtils.isEmpty(country) ? "" : country;
 
         holder.speakerName.setText(name);
         holder.speakerDesignation.setText(String.format(positionString, organisation));

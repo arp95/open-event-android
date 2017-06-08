@@ -92,12 +92,12 @@ public class SponsorsListAdapter extends BaseRVAdapter<Sponsor, RecyclerView.Vie
             final int width = displayMetrics.widthPixels;
             final int height = displayMetrics.heightPixels;
             final Sponsor currentSponsor = getItem(position);
-
-            sponsorViewHolder.sponsorType.setText(currentSponsor.getSponsorType());
-            sponsorViewHolder.sponsorName.setText(currentSponsor.getName());
-
+            String sponserName = Utils.checkStringEmpty(currentSponsor.getName());
+            String sponserType = Utils.checkStringEmpty(currentSponsor.getSponsorType());
             String logo = Utils.parseImageUri(currentSponsor.getLogo());
 
+            sponsorViewHolder.sponsorType.setText(sponserType);
+            sponsorViewHolder.sponsorName.setText(sponserName);
             if(logo != null) {
                 sponsorViewHolder.sponsorImage.setVisibility(View.VISIBLE);
                 Picasso.with(sponsorViewHolder.sponsorImage.getContext())

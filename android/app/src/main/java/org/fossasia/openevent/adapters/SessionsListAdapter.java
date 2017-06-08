@@ -31,6 +31,7 @@ import org.fossasia.openevent.dbutils.RealmDataRepository;
 import org.fossasia.openevent.receivers.NotificationAlarmReceiver;
 import org.fossasia.openevent.utils.ConstantStrings;
 import org.fossasia.openevent.utils.ISO8601Date;
+import org.fossasia.openevent.utils.Utils;
 import org.fossasia.openevent.utils.WidgetUpdater;
 
 import java.util.ArrayList;
@@ -129,14 +130,16 @@ public class SessionsListAdapter extends BaseRVAdapter<Session, SessionsListAdap
     public void onBindViewHolder(final SessionViewHolder holder, final int position) {
         final Session session = getItem(position);
         String date = ISO8601Date.getDateFromStartDateString(session.getStartTime());
+        String sessionTitle = Utils.checkStringEmpty(session.getTitle());
+        String sessionSubTitle = Utils.checkStringEmpty(session.getSubtitle());
 
-        holder.sessionTitle.setText(session.getTitle());
+        holder.sessionTitle.setText(sessionTitle);
 
-        if(TextUtils.isEmpty(session.getSubtitle())) {
+        if(Utils.isEmpty(sessionSubTitle)) {
             holder.sessionSubtitle.setVisibility(View.GONE);
         } else {
             holder.sessionSubtitle.setVisibility(View.VISIBLE);
-            holder.sessionSubtitle.setText(session.getSubtitle());
+            holder.sessionSubtitle.setText(sessionSubTitle);
         }
 
         Track track = session.getTrack();
@@ -184,15 +187,18 @@ public class SessionsListAdapter extends BaseRVAdapter<Session, SessionsListAdap
 
         holder.sessionDate.setText(date);
         holder.sessionTime.setText(ISO8601Date.get12HourTimeFromCombinedDateString(session.getStartTime(), session.getEndTime()));
-        if(session.getMicrolocation() != null)
-            holder.sessionLocation.setText(session.getMicrolocation().getName());
+        if(session.getMicrolocation() != null) {
+            String locationName = Utils.checkStringEmpty(session.getMicrolocation().getName());
+            holder.sessionLocation.setText(locationName);
+        }
 
         Observable.just(session.getSpeakers())
                 .map(speakers -> {
                     ArrayList<String> speakerName = new ArrayList<>();
 
                     for(Speaker speaker: speakers){
-                        speakerName.add(speaker.getName());
+                        String name = Utils.checkStringEmpty(speaker.getName());
+                        speakerName.add(name);
                     }
 
                     if (speakers.isEmpty()) {

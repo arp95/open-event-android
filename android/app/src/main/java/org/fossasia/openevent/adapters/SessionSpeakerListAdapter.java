@@ -6,7 +6,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,11 +61,8 @@ public class SessionSpeakerListAdapter extends BaseRVAdapter<Speaker, SessionSpe
             holder.speakerImage.setImageDrawable(placeholder);
         }
 
-        String name = current.getName();
-        name = TextUtils.isEmpty(name) ? "" : name;
-
-        String positionString = current.getPosition();
-        positionString = TextUtils.isEmpty(positionString) ? "" : positionString;
+        String name = Utils.checkStringEmpty(current.getName());
+        String positionString = Utils.checkStringEmpty(current.getPosition());
 
         holder.speakerName.setText(name);
         holder.speakerDesignation.setText(String.format("%s %s", positionString, current.getOrganisation()));
