@@ -38,7 +38,7 @@
                 android:textStyle="bold"
                 android:padding="@dimen/padding_small"
                 android:textColor="@color/primary_text"
-                android:textSize="@dimen/text_size_small"
+                android:textSize="@dimen/text_size_large"
                 tools:text="Speaker Name" />
 
             <TextView
@@ -59,7 +59,7 @@
                 android:padding="@dimen/padding_small"
                 android:textAllCaps="true"
                 android:textColor="@color/secondary_text"
-                android:textSize="@dimen/text_size_small"
+                android:textSize="@dimen/text_size_medium"
                 tools:text="Country" />
 
         </LinearLayout>
