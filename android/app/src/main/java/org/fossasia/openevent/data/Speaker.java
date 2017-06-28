@@ -144,20 +144,12 @@ public class Speaker extends RealmObject {
         return longBiography;
     }
 
-    public String getHeardFrom() {
-        return heardFrom;
-    }
-
     public String getShortBiography() {
         return shortBiography;
     }
 
     public RealmList<Session> getSessions() {
         return sessions;
-    }
-
-    public String getSponsorshipRequired() {
-        return sponsorshipRequired;
     }
 
     public String getSpeakingExperience() {

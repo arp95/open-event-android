@@ -44,7 +44,7 @@ public class Session extends RealmObject {
     private boolean isBookmarked;
 
     @JsonSetter("session_type")
-    private void setSessionType(SessionType sessionType) {
+    public void setSessionType(SessionType sessionType) {
         this.sessionType = sessionType;
     }
 
@@ -59,7 +59,7 @@ public class Session extends RealmObject {
     }
 
     @JsonSetter("start_time")
-    private void setStartTime(String startTime) {
+    public void setStartTime(String startTime) {
         this.startTime = startTime;
     }
 
@@ -74,12 +74,12 @@ public class Session extends RealmObject {
     }
 
     @JsonSetter("end_time")
-    private void setEndTime(String endTime) {
+    public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
 
     @JsonSetter("short_abstract")
-    private void setShortAbstract(String shortAbstract) {
+    public void setShortAbstract(String shortAbstract) {
         this.shortAbstract = shortAbstract;
     }
 
@@ -89,7 +89,7 @@ public class Session extends RealmObject {
     }
 
     @JsonSetter("long_abstract")
-    private void setLongAbstract(String longAbstract) {
+    public void setLongAbstract(String longAbstract) {
         this.longAbstract = longAbstract;
     }
 
@@ -99,7 +99,7 @@ public class Session extends RealmObject {
     }
 
     @JsonSetter("slides")
-    private void setSlides(String slides) {
+    public void setSlides(String slides) {
         this.slides = slides;
     }
 
@@ -119,7 +119,7 @@ public class Session extends RealmObject {
     }
 
     @JsonSetter("audio")
-    private void setAudio(String audio) {
+    public void setAudio(String audio) {
         this.audio = audio;
     }
 
@@ -129,7 +129,7 @@ public class Session extends RealmObject {
     }
 
     @JsonSetter("signup_url")
-    private void setSignupUrl(String signupUrl) {
+    public void setSignupUrl(String signupUrl) {
         this.signupUrl = signupUrl;
     }
 
