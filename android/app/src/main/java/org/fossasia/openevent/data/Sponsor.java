@@ -36,12 +36,12 @@ public class Sponsor extends RealmObject {
         return url;
     }
 
-    @JsonSetter("session_type")
+    @JsonSetter("sponsor_type")
     public void setSponserType(String sponserType) {
         this.sponsorType = sponserType;
     }
 
-    @JsonSetter("session-type")
+    @JsonSetter("sponsor-type")
     public void setSponserTypeForNewModel(String sponserType) {
         this.sponsorType = sponserType;
     }
