@@ -472,7 +472,6 @@ public class RealmDataRepository {
     //Session Types Section
 
     private void saveSessionTypesInRealm(List<SessionType> sessionTypes) {
-        Realm realm = Realm.getDefaultInstance();
         realm.executeTransaction(realm1 -> realm1.insertOrUpdate(sessionTypes));
         realm.close();
     }

@@ -709,7 +709,7 @@ public class MainActivity extends BaseActivity implements FeedAdapter.AdapterCal
                     OpenEventApp.postEventOnUIThread(new SessionDownloadEvent(true));
                     break;
                 } case ConstantStrings.SPEAKERS: {
-                    List<Speaker> speakers = objectMapper.readValue(json, objectMapper.getTypeFactory().constructCollectionType(List.class, Speaker.class);
+                    List<Speaker> speakers = objectMapper.readValue(json, objectMapper.getTypeFactory().constructCollectionType(List.class, Speaker.class));
 
                     realmRepo.saveSpeakers(speakers).subscribe();
 
