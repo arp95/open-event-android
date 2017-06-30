@@ -780,7 +780,7 @@ public class MainActivity extends BaseActivity implements FeedAdapter.AdapterCal
             startDownloadListener();
             Timber.d("JSON parsing started");
 
-            OpenEventApp.postEventOnUIThread(new CounterEvent(6)); // Bump if increased
+            OpenEventApp.postEventOnUIThread(new CounterEvent(7)); // Bump if increased
 
             readJsonAsset(Urls.EVENT);
             readJsonAsset(Urls.SESSIONS);
