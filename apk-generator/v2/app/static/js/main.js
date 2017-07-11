@@ -16,9 +16,11 @@ var $fileProgressHolder = $("#file-progress"),
 
 var $statusMessageHolder = $("#status-message-holder"),
     $statusMessage = $("#status-message");
+    $buildLog = $("#build-log");
 
 var $errorMessageHolder = $("#error-message-holder"),
     $errorMessage = $("#error-message");
+
 
 var identifier = null,
     taskId = null,
@@ -54,6 +56,10 @@ $dataSourceRadio.change(
         }
     }
 );
+
+$('#log-message').click(function(e) {
+    $buildLog.toggle();
+});
 
 $apiEndpointInput.valueChange(function (value) {
     if (dataSourceType === "api_endpoint") {
