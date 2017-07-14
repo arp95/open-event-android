@@ -10,6 +10,7 @@ import requests
 import validators
 from celery.utils.log import get_task_logger
 from flask import current_app
+from app import socketio
 
 from app.utils import replace, clear_dir, unzip, get_build_tools_version
 from app.utils.assets import resize_launcher_icon, resize_background_image, save_logo
@@ -310,6 +311,7 @@ class Generator:
                 self.task_handle.update_state(
                     state=state, meta=meta
                 )
+        self.handle_message(message)
 
     def run_command(self, command):
         logger.info('Running command: %s', command)
@@ -326,6 +328,9 @@ class Generator:
                 self.generate_status_updates(output.strip())
         rc = process.poll()
         return rc
+
+    def handle_message(self, message):
+        socketio.emit('message', message)
 
     def generate_status_updates(self, output_line):
         if 'Starting process \'Gradle build daemon\'' in output_line:
@@ -366,3 +371,4 @@ class Generator:
             self.update_status('Package verified.', skip_log=True)
         elif output_line == 'done':
             self.update_status('Application has been generated. Please wait.', skip_log=True)
+            

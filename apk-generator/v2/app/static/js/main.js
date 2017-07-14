@@ -17,7 +17,8 @@ var $fileProgressHolder = $("#file-progress"),
     $fileProgressVal = $("#file-progress-val");
 
 var $statusMessageHolder = $("#status-message-holder"),
-    $statusMessage = $("#status-message");
+    $statusMessage = $("#status-message"),
+    $buildLog = $("#build-log");
 
 var $errorMessageHolder = $("#error-message-holder"),
     $errorMessage = $("#error-message");
@@ -26,6 +27,12 @@ var identifier = null,
     taskId = null,
     pollingWorker = null,
     downloadUrl = null;
+
+var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+socket.on('message', function(message) {
+      $buildLog.append(message);
+  });
 
 /**
  * Enable the generate button
@@ -56,6 +63,10 @@ $dataSourceRadio.change(
         }
     }
 );
+
+$('#log-message').click(function(e) {
+    $buildLog.toggle();
+});
 
 $buildTypeRadio.change(
     function () {
