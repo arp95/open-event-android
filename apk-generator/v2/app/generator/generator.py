@@ -11,6 +11,7 @@ import validators
 from celery.utils.log import get_task_logger
 from flask import current_app
 from app import socketio
+from flask_socketio import send
 
 from app.utils import replace, clear_dir, unzip, get_build_tools_version
 from app.utils.assets import resize_launcher_icon, resize_background_image, save_logo
@@ -329,8 +330,9 @@ class Generator:
         rc = process.poll()
         return rc
 
+    @socketio.on('message')
     def handle_message(self, message):
-        socketio.emit('message', message)
+        send(message, namespace=self.identifier)
 
     def generate_status_updates(self, output_line):
         if 'Starting process \'Gradle build daemon\'' in output_line:
