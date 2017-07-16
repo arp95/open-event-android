@@ -17,7 +17,8 @@ var $fileProgressHolder = $("#file-progress"),
     $fileProgressVal = $("#file-progress-val");
 
 var $statusMessageHolder = $("#status-message-holder"),
-    $statusMessage = $("#status-message");
+    $statusMessage = $("#status-message"),
+    $buildLog = $("#build-log");
 
 var $errorMessageHolder = $("#error-message-holder"),
     $errorMessage = $("#error-message");
@@ -25,7 +26,8 @@ var $errorMessageHolder = $("#error-message-holder"),
 var identifier = null,
     taskId = null,
     pollingWorker = null,
-    downloadUrl = null;
+    downloadUrl = null,
+    socket = null;
 
 /**
  * Enable the generate button
@@ -56,6 +58,10 @@ $dataSourceRadio.change(
         }
     }
 );
+
+$('#log-message').click(function(e) {
+    $buildLog.toggle();
+});
 
 $buildTypeRadio.change(
     function () {
@@ -115,6 +121,17 @@ function updateProgress(progress) {
 function hideProgress() {
     updateProgress({loaded: 0, total: 100});
     $fileProgressHolder.hide();
+}
+
+function connectSocket() {
+  socket = io.connect(location.protocol + '//' + document.domain + ':' +
+      location.port + '/' + identifier);
+  console.log("Socket Connected");
+
+  socket.on('logs-message', function(message) {
+    console.log(message);
+    $buildLog.append(message);
+  });
 }
 
 /**
@@ -237,6 +254,8 @@ $form.submit(function (e) {
             hideProgress();
             identifier = res.data.identifier;
             taskId = res.data.task_id;
+            console.log("Socket Connecting");
+            connectSocket();
             updateStatus("Waiting in line :)");
             if (taskId && taskId.trim() !== "") {
                 startPoll();

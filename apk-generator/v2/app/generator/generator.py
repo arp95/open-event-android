@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import requests
 import shutil
 import subprocess
 import urllib
@@ -9,7 +10,9 @@ import uuid
 import requests
 import validators
 from celery.utils.log import get_task_logger
-from flask import current_app
+from flask import current_app, url_for
+from app import socketio
+from flask_socketio import send
 
 from app.utils import replace, clear_dir, unzip, get_build_tools_version
 from app.utils.assets import resize_launcher_icon, resize_background_image, save_logo
@@ -310,6 +313,7 @@ class Generator:
                 self.task_handle.update_state(
                     state=state, meta=meta
                 )
+        self.handle_message(message)
 
     def run_command(self, command):
         logger.info('Running command: %s', command)
@@ -326,6 +330,13 @@ class Generator:
                 self.generate_status_updates(output.strip())
         rc = process.poll()
         return rc
+
+    def handle_message(self, message):
+        if message is not None:
+            request_json = {'identifier': self.identifier, 'message': message}
+            logger.info("Sending POST Request with: " + json.dumps(request_json))
+            request_url = 'http://localhost:8080' + url_for('api.send_notif')
+            res = requests.post(request_url, json=request_json)
 
     def generate_status_updates(self, output_line):
         if 'Starting process \'Gradle build daemon\'' in output_line:
