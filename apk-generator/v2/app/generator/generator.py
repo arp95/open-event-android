@@ -38,8 +38,8 @@ class Generator:
         else:
             self.identifier = identifier
         self.task_handle = task_handle
-        self.update_status('Starting the generator')
         self.config = config
+        self.update_status('Starting the generator')
         self.working_dir = config['WORKING_DIR']
         self.src_dir = config['APP_SOURCE_DIR']
         self.creator_email = ''
@@ -313,7 +313,7 @@ class Generator:
                 self.task_handle.update_state(
                     state=state, meta=meta
                 )
-        self.handle_message(message)
+        self.handle_message(state)
 
     def run_command(self, command):
         logger.info('Running command: %s', command)
@@ -335,7 +335,7 @@ class Generator:
         if message is not None:
             request_json = {'identifier': self.identifier, 'message': message}
             logger.info("Sending POST Request with: " + json.dumps(request_json))
-            request_url = 'http://localhost:8080' + url_for('api.send_notif')
+            request_url = 'http://localhost:'+ self.config['PORT'] + url_for('api.send_notif')
             res = requests.post(request_url, json=request_json)
 
     def generate_status_updates(self, output_line):

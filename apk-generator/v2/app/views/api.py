@@ -18,7 +18,6 @@ def send_notif():
     namespace = '/' + identifier
     message = request_json['message']
     from app import socketio
-    #socketio.emit('logs-message', {'message': message}, namespace=namespace)
     socketio.send(data=message, namespace=namespace)
     return jsonify(state = "SUCCESS")
 

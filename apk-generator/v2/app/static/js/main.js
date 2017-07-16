@@ -126,11 +126,10 @@ function hideProgress() {
 function connectSocket() {
   socket = io.connect(location.protocol + '//' + document.domain + ':' +
       location.port + '/' + identifier);
-  console.log("Socket Connected");
 
-  socket.on('logs-message', function(message) {
-    console.log(message);
-    $buildLog.append(message);
+  socket.on('message', function(message) {
+	console.log(message);    
+	$buildLog.append(message);
   });
 }
 
