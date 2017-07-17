@@ -10,16 +10,28 @@ from app.views import process
 api = Blueprint('api', __name__, url_prefix='/api/v2')
 
 TASK_RESULTS = {}
+prev_status = None
 
-@api.route('/app/send-notif', methods=['POST', ])
+@api.route('/_internal/socket/message', methods=['POST', ])
 def send_notif():
     request_json = request.get_json(force=True)
     identifier = request_json['identifier']
-    namespace = '/' + identifier
+    namespace_for_status = '/' + identifier + '/status'
+    namespace_for_logs = '/' + identifier + '/logs'
     message = request_json['message']
+    state = request_json['state']
+    exception = request_json['exc']
+
     from app import socketio
-    socketio.send(data=message, namespace=namespace)
-    return jsonify(state = "SUCCESS")
+    socketio.send(data=state, namespace=namespace_for_logs)
+    
+    if exception:
+        socketio.send(data=exception, namespace=namespace_for_status)
+    elif message:
+        socketio.send(data=message, namespace=namespace_for_status)
+    else:
+        socketio.send(data=state, namespace=namespace_for_status)
+    return jsonify(state="SUCCESS")
 
 @api.route('/app/<string:task_id>/status', methods=['GET', ])
 def app_status(task_id):

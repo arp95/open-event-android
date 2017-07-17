@@ -123,13 +123,43 @@ function hideProgress() {
     $fileProgressHolder.hide();
 }
 
-function connectSocket() {
-  socket = io.connect(location.protocol + '//' + document.domain + ':' +
-      location.port + '/' + identifier);
+function connectSocketLogs() {
+  var socketLogs = io.connect(location.protocol + '//' + document.domain + ':' +
+      location.port + '/' + identifier + '/logs');
 
-  socket.on('message', function(message) {
-	console.log(message);    
-	$buildLog.append(message);
+  socketLogs.on('message', function(message) {
+	if (message === "SUCCESS") {
+		downloadUrl = message;
+                enableDownloadButton();
+		socket.disconnect();
+	}
+	else if(message === "FAILURE") {
+		showError();
+		socket.disconnect();
+	}    
+	else {
+		$buildLog.append(message + '<br>');  
+	}  
+  });
+}
+
+function connectSocketStatus() {
+  var socketStatus = io.connect(location.protocol + '//' + document.domain + ':' +
+      location.port + '/' + identifier + '/status');
+
+  socketStatus.on('message', function(message) {
+	if (message === "SUCCESS") {
+		downloadUrl = message;
+                enableDownloadButton();
+		socket.disconnect();
+	}
+	else if(message === "FAILURE") {
+		showError();
+		socket.disconnect();
+	}    
+	else {
+		updateStatus(message);
+	}
   });
 }
 
@@ -192,39 +222,6 @@ $downloadBtn.click(function () {
 });
 
 /**
- * Start the continuous poll for getting status updates
- */
-function startPoll() {
-    pollingWorker = setInterval(function () {
-        axios
-            .get("/api/v2/app/" + taskId + "/status")
-            .then(function (res) {
-                res = res.data;
-                switch (res.state) {
-                    case "FAILURE":
-                        showError();
-                        clearInterval(pollingWorker);
-                        break;
-                    case "SUCCESS":
-                        if (res.hasOwnProperty("result")) {
-                            downloadUrl = res.result.hasOwnProperty("message") ? res.result.message : res.result;
-                            enableDownloadButton();
-                        } else {
-                            showError();
-                        }
-                        clearInterval(pollingWorker);
-                        break;
-                    default:
-                        updateStatus(res.state);
-                }
-            })
-            .catch(function (err) {
-
-            });
-    }, 1000);
-}
-
-/**
  * Submit the data to the backend via AJAX when the form is submitted
  */
 $form.submit(function (e) {
@@ -252,13 +249,10 @@ $form.submit(function (e) {
         .then(function (res) {
             hideProgress();
             identifier = res.data.identifier;
-            taskId = res.data.task_id;
             console.log("Socket Connecting");
-            connectSocket();
+            connectSocketLogs();
             updateStatus("Waiting in line :)");
-            if (taskId && taskId.trim() !== "") {
-                startPoll();
-            }
+            connectSocketStatus();
         })
         .catch(function () {
             showError();
