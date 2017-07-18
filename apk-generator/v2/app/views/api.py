@@ -18,19 +18,11 @@ def send_notif():
     identifier = request_json['identifier']
     namespace_for_status = '/' + identifier + '/status'
     namespace_for_logs = '/' + identifier + '/logs'
-    message = request_json['message']
-    state = request_json['state']
-    exception = request_json['exc']
 
     from app import socketio
-    socketio.send(data=state, namespace=namespace_for_logs)
-    
-    if exception:
-        socketio.send(data=exception, namespace=namespace_for_status)
-    elif message:
-        socketio.send(data=message, namespace=namespace_for_status)
-    else:
-        socketio.send(data=state, namespace=namespace_for_status)
+    socketio.send(data=request_json, namespace=namespace_for_logs)
+    socketio.send(data=request_json, namespace=namespace_for_status)
+        
     return jsonify(state="SUCCESS")
 
 @api.route('/app/<string:task_id>/status', methods=['GET', ])

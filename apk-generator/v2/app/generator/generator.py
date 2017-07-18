@@ -12,7 +12,6 @@ import validators
 from celery.utils.log import get_task_logger
 from flask import current_app, url_for
 from app import socketio
-from flask_socketio import send
 
 from app.utils import replace, clear_dir, unzip, get_build_tools_version
 from app.utils.assets import resize_launcher_icon, resize_background_image, save_logo

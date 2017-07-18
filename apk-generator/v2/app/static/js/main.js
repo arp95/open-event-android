@@ -27,7 +27,8 @@ var identifier = null,
     taskId = null,
     pollingWorker = null,
     downloadUrl = null,
-    socket = null;
+    socket = null,
+    arr = [];
 
 /**
  * Enable the generate button
@@ -124,41 +125,49 @@ function hideProgress() {
 }
 
 function connectSocketLogs() {
+	res = res.data;
   var socketLogs = io.connect(location.protocol + '//' + document.domain + ':' +
       location.port + '/' + identifier + '/logs');
 
-  socketLogs.on('message', function(message) {
-	if (message === "SUCCESS") {
-		downloadUrl = message;
+  socketLogs.on('message', function(jsonMessage) {
+	json = JSON.parse(jsonMessage);	
+	if (json.state === "SUCCESS") {
+		downloadUrl = json.message
                 enableDownloadButton();
 		socket.disconnect();
 	}
-	else if(message === "FAILURE") {
-		showError();
-		socket.disconnect();
-	}    
+	//else if(json.state === "FAILURE") {
+	//	showError();
+	//	socket.disconnect();
+	//}    
 	else {
-		$buildLog.append(message + '<br>');  
+		$buildLog.append(json.state + '<br>'); 
 	}  
   });
 }
 
 function connectSocketStatus() {
+  res = res.data;
   var socketStatus = io.connect(location.protocol + '//' + document.domain + ':' +
       location.port + '/' + identifier + '/status');
 
-  socketStatus.on('message', function(message) {
-	if (message === "SUCCESS") {
-		downloadUrl = message;
+  socketStatus.on('message', function(jsonMessage) {
+	json = JSON.parse(jsonMessage);	
+	if (json.state === "SUCCESS") {
+		downloadUrl = json.message;
                 enableDownloadButton();
 		socket.disconnect();
 	}
-	else if(message === "FAILURE") {
-		showError();
-		socket.disconnect();
-	}    
+	//else if(json.state === "FAILURE") {
+	//	showError();
+	//	socket.disconnect();
+	//}    
 	else {
-		updateStatus(message);
+		if(json.message) {
+			updateStatus(json.message);	
+		} else {
+			updateStatus(json.state);
+		}
 	}
   });
 }
@@ -255,6 +264,6 @@ $form.submit(function (e) {
             connectSocketStatus();
         })
         .catch(function () {
-            showError();
+            //showError();
         });
 });
